@@ -1,1 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The New Valdoria | Système de Gestion</title>
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --bg-card: #161b22;
+            --blue: #3b82f6;
+            --green: #238636;
+            --gold: #f1c40f;
+            --text: #f0f6fc;
+            --border: #30363d;
+        }
 
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text); }
+
+        /* --- NAVIGATION --- */
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(13, 17, 23, 0.95); border-bottom: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding: 15px 0; z-index: 1000; }
+        .nav-links span { margin: 0 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #8b949e; }
+        .nav-links span:hover { color: var(--blue); }
+        .wallet { color: var(--gold); border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+
+        /* --- PAGES --- */
+        .page { display: none; padding: 120px 20px 40px; min-height: 100vh; box-sizing: border-box; }
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- BOXES & CARDS --- */
+        .container { max-width: 1000px; margin: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; text-align: center; }
+        
+        /* --- AUTH FORMS --- */
+        .auth-box { max-width: 400px; margin: 40px auto; background: var(--bg-card); padding: 40px; border-radius: 12px; border: 1px solid var(--border); }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 6px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-green { background: var(--green); color: white; }
+        .btn-gold { background: var(--gold); color: black; }
+
+        /* --- TABLE ADMIN --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #0d1117; }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: left; }
+        th { background: #161b22; color: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <b onclick="showPage('home')" style="cursor:pointer">🌍 VALDORIA</b>
+        <div class="nav-links">
+            <span onclick="showPage('home')">Accueil</span>
+            <span onclick="showPage('shop')">Boutique</span>
+            <span onclick="showPage('login')" id="login-nav">Connexion / Inscription</span>
+            <span onclick="showPage('admin')" id="admin-nav" style="display:none; color: #ff4444;">🛡️ Admin</span>
+        </div>
+        <div class="wallet">Solde: <span id="balance">0.00</span>€</div>
+    </nav>
+
+    <div id="home" class="page active">
+        <div class="container" style="text-align: center;">
+            <h1>The New Valdoria</h1>
+            <p>Le serveur RP Nation où vous écrivez l'histoire.</p>
+            <div class="grid" style="margin-top: 50px;">
+                <div class="card"><h2>484</h2><p>Joueurs</p></div>
+                <div class="card"><h2>120</h2><p>Pays</p></div>
+                <div class="card"><h2>15</h2><p>Guerres</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shop" class="page">
+        <div class="container">
+            <h1 style="text-align: center;">Boutique de Box</h1>
+            <div class="grid">
+                <div class="card">
+                    <h3>Box Citoyen</h3>
+                    <p class="price" style="font-size: 2rem; color: var(--gold);">2.00€</p>
+                    <button class="btn btn-green" onclick="buy(2)">Acheter</button>
+                </div>
+                <div class="card">
+                    <h3>Box Guerrier</h3>
+                    <p class="price" style="font-size: 2rem; color: var(--blue);">5.00€</p>
+                    <button class="btn btn-blue" onclick="buy(5)">Acheter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login" class="page">
+        <div class="auth-box">
+            <h2 id="auth-title">Connexion</h2>
+            <input type="text" id="user" placeholder="Pseudo Minecraft">
+            <input type="password" id="pass" placeholder="Mot de passe / Code Admin">
+            <button class="btn btn-blue" onclick="handleAuth()">Se connecter</button>
+            <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">
+                Pas encore de compte ? <span onclick="toggleAuth()" style="color: var(--blue); cursor: pointer;">S'inscrire</span>
+            </p>
+        </div>
+    </div>
+
+    <div id="admin" class="page">
+        <div class="container">
+            <div class="card" style="text-align: left; border: 1px solid var(--gold);">
+                <h2 style="color: var(--gold);">🛡️ Panel Administrateur</h2>
+                <hr style="border: 0.5px solid var(--border);">
+                
+                <h3>Gestion de l'argent</h3>
+                <input type="number" id="give-amt" placeholder="Montant en €" style="width: 200px;">
+                <button class="btn btn-gold" style="width: 150px; margin-left: 10px;" onclick="giveMoney()">Give Argent</button>
+
+                <h3 style="margin-top: 40px;">Liste des Utilisateurs Inscrits</h3>
+                <table id="user-table">
+                    <thead>
+                        <tr>
+                            <th>Pseudo</th>
+                            <th>Mot de passe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 0;
+        let isLoginMode = true;
+
+        // Charger les utilisateurs depuis la mémoire du navigateur (LocalStorage)
+        let users = JSON.parse(localStorage.getItem('valdoria_users')) || [];
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function toggleAuth() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Connexion" : "Inscription";
+        }
+
+        function handleAuth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+
+            if (isLoginMode) {
+                // Mode Connexion Admin
+                if (u === "admin" && p === "743474") {
+                    alert("🔓 Accès Admin accordé !");
+                    document.getElementById('admin-nav').style.display = "inline";
+                    showPage('admin');
+                    updateUserList();
+                } 
+                // Mode Connexion Joueur
+                else {
+                    const found = users.find(user => user.username === u && user.password === p);
+                    if (found) {
+                        alert("✅ Bienvenue " + u);
+                        showPage('home');
+                    } else {
+                        alert("❌ Pseudo ou mot de passe incorrect.");
+                    }
+                }
+            } else {
+                // Mode Inscription
+                if (u && p) {
+                    if (users.find(user => user.username === u)) {
+                        alert("❌ Ce pseudo existe déjà !");
+                    } else {
+                        users.push({username: u, password: p});
+                        localStorage.setItem('valdoria_users', JSON.stringify(users));
+                        alert("🎉 Compte créé ! Connectez-vous maintenant.");
+                        toggleAuth();
+                    }
+                }
+            }
+        }
+
+        function giveMoney() {
+            const amt = parseFloat(document.getElementById('give-amt').value);
+            if (!isNaN(amt)) {
+                balance += amt;
+                document.getElementById('balance').innerText = balance.toFixed(2);
+                alert("💰 " + amt + "€ ajoutés !");
+            }
+        }
+
+        function buy(cost) {
+            if (balance >= cost) {
+                balance -= cost;
+                document.getElementById('balance').innerText = balance.toFixed(2);
+                alert("📦 Box achetée !");
+            } else {
+                alert("❌ Solde insuffisant !");
+            }
+        }
+
+        function updateUserList() {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            users.forEach(u => {
+                list.innerHTML += `<tr><td>${u.username}</td><td>${u.password}</td></tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
